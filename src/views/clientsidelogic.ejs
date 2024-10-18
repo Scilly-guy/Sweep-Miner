@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <svg id="svg" width="100%" height="100%" viewBox="0 0 1000 1000">
+    
+    </svg>
+    <script>
+        const svg=document.getElementById("svg");
+        
+        const SVGREF='http://www.w3.org/2000/svg';
+        function drawTile(x,y,size,svgreference,text='',id='',className='',colour='#33333333'){
+            const tile = document.createElementNS(SVGREF, 'rect');
+            const textbox = document.createElementNS(SVGREF,'text');
+            tile.setAttributeNS(null, 'x', x-size/2);
+            tile.setAttributeNS(null,'y' ,y-size/2);
+            tile.setAttributeNS(null,'width',size);
+            tile.setAttributeNS(null,'height',size);
+            tile.setAttributeNS(null,'fill',colour);
+            if(id!=''){
+                tile.setAttributeNS(null,'id',id);
+            }
+            if(className!=''){
+                tile.setAttributeNS(null,'class',className);
+            }
+            textbox.setAttributeNS(null, 'x', x-3);
+            textbox.setAttributeNS(null,'y' ,y+4);
+            textbox.setAttributeNS(null,'width',size);
+            textbox.setAttributeNS(null,'height',size);
+            textbox.innerHTML=text;
+            tile.addEventListener('click',e=>{
+                e.target.setAttributeNS(null,'fill',"none");
+            });
+            svgreference.append(tile);
+            svgreference.append(textbox);
+        }
+
+        const gameMines=[];
+        const gameWidth=4;
+        const gameHeight=5;
+        const gameBoard=Array(gameWidth*gameHeight);
+        gameBoard.fill(0);
+
+        for(let i=0;i<gameWidth;i++){
+            for(let j=0;j<gameHeight;j++){
+                gameMines.push(Math.random()<0.1?1:0);
+            }
+        }
+        console.log(gameMines.length);
+        
+        for(let i=0;i<gameWidth;i++){
+            for(let j=0;j<gameHeight;j++){
+                
+                if(isNaN(gameBoard[i*gameHeight+j])){
+                    console.log(i,j);
+                    console.log(gameBoard[i*gameHeight+j]);
+                }
+                //if it is not the first column
+                if(0<i){
+                    //if the cell to the left is a mine
+                    if(gameMines[(i-1)*gameHeight+j]){
+                        gameBoard[i*gameHeight+j]++;
+                    }
+                    //if it is not the first cell
+                    if(0<j){
+                        //if the cell up and left is a mine
+                        if(gameMines[(i-1)*gameHeight+j-1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }
+                    }//if it is not the bottom left cell
+                    if(j<gameHeight-1){
+                        //if the cell left and down is a mine
+                        if(gameMines[(i-1)*gameHeight+j+1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }                        
+                    }
+                }
+                if(isNaN(gameBoard[i*gameHeight+j])){
+                    console.log(i,j);
+                    console.log(gameBoard[i*gameHeight+j]);
+                }
+                //if it is not the right hand column
+                if(i<gameWidth-1){
+                    //if the cell to the right is a mine
+                    if(gameMines[(i+1)*gameHeight+j])
+                    gameBoard[i*gameHeight+j]++;
+                    //if it is not the right hand most cell in the first row
+                    if(0<j){
+                        //if the cell up and right is a mine
+                        if(gameMines[(i+1)*gameHeight+j-1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }
+                    }//if it is not the bottom right cell
+                    if(j<gameHeight-1){
+                        //if the cell down and right is a mine
+                        if(gameMines[(i+1)*gameHeight+j+1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }
+                    }
+                }
+                //if it is not the first row
+                if(0<j){
+                    //if the cell above is a mine
+                    if(gameMines[i*gameHeight+j-1])
+                    gameBoard[i*gameHeight+j]++;
+                }
+                //if it is not the bottom row
+                if(j<gameHeight-1){
+                    //if the cell below is a mine
+                    if(gameMines[i*gameHeight+j+1])
+                    gameBoard[i*gameHeight+j]++;
+                }
+
+                
+                if(isNaN(gameBoard[i*gameHeight+j])){
+                    console.log(i,j);
+                    console.log(gameBoard[i*gameHeight+j]);
+                }
+            }
+        }
+
+        for(let i=0;i<gameWidth;i++){
+            for(let j=0;j<gameHeight;j++){
+                drawTile(i*20+20,j*20+20,19,svg,gameBoard[i*gameHeight+j]);
+                drawTile(i*20+20,j*20+20,19,svg,'',`tile-${i}-${j}`,'cover','green');
+            }
+        }
+        document.querySelectorAll('.cover').forEach(cover=>{
+            cover.addEventListener('click',e=>{
+                const coords=coordsFromId(e.target.id);
+                if(gameMines[coords.x*gameHeight+coords.y]){
+                    console.log("lost");
+                    alert("lost");
+                }
+            });
+        });
+
+        function coordsFromId(id){
+            const coords=id.split('-');
+            return {x:parseInt(coords[1]),y:parseInt(coords[2])};
+        }
+    </script>
+</body>
+</html>

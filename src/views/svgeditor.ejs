@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <svg id="main-svg" width="100%" height="100%" viewBox="0 0 1000 1000">
+
+        <!-- Control Point Rects -->
+        <path id='curve' fill="green" stroke="green" d="M 100, 300 s 5, -30, 11, -50 s 15, -40, 20, -50 s -10,40 -15, 50 s -3,30,-9,50"></path>
+        <circle class="moveable" id="start-point" cx="100" cy="300" r="10" fill="red"/>
+        <rect class="moveable" id="control-point-1-a" x="100" y="265" width="10" height="10" fill="red" />
+        <rect class="moveable" id="control-point-1-b" x="106" y="245" width="10" height="10" fill="blue" />
+        <rect class="moveable" id="control-point-2-a" x="115" y="225" width="10" height="10" fill="red" />
+        <rect class="moveable" id="control-point-2-b" x="120" y="215" width="10" height="10" fill="blue" />
+        <rect class="moveable" id="control-point-3-a" x="105" y="265" width="10" height="10" fill="red" />
+        <rect class="moveable" id="control-point-3-b" x="100" y="275" width="10" height="10" fill="blue" />
+        <rect class="moveable" id="control-point-4-a" x="102" y="295" width="10" height="10" fill="red" />
+        <rect class="moveable" id="control-point-4-b" x="96" y="315" width="10" height="10" fill="blue" />
+        <text id="text" x="20" y="20"></text>
+    </svg>
+
+    <script>
+        const mainSvg = document.getElementById('main-svg');
+        const SVGREF='http://www.w3.org/2000/svg';
+        function drawTile(x,y,size,svgreference){
+            const tile = document.createElementNS(SVGREF, 'rect');
+            tile.setAttributeNS(null, 'x', x-size/2);
+            tile.setAttributeNS(null,'y' ,y-size/2);
+            tile.setAttributeNS(null,'width',size);
+            tile.setAttributeNS(null,'height',size);
+            tile.setAttributeNS(null,'fill',"black");
+            tile.addEventListener('click',e=>{
+                e.target.setAttributeNS(null,'fill',"red");
+            });
+            svgreference.append(tile);
+        }
+
+        drawTile(60,60,30,mainSvg);
+
+        // Function to get mouse position relative to SVG container
+function getMousePosition(event) {
+  const CTM = mainSvg.getScreenCTM();
+  return {
+    x: (event.clientX - CTM.e) / CTM.a,
+    y: (event.clientY - CTM.f) / CTM.d
+  };
+}
+document.querySelectorAll('.moveable').forEach(moveable=>{
+        moveable.addEventListener('mousedown',e=>{
+            currentHandle=e.target;
+        document.addEventListener('mousemove',mousemoveHandler);
+    });
+    document.addEventListener('mouseup',e=>{
+        currentHandle=null;
+    moveable.removeEventListener('mousemove',mousemoveHandler);
+});
+});
+
+let currentHandle=null;
+
+function mousemoveHandler(e){
+    const mousePos=getMousePosition(e);
+    currentHandle?.setAttributeNS(null,'x',mousePos.x-5);
+    currentHandle?.setAttributeNS(null,'y',mousePos.y-5);
+    currentHandle?.setAttributeNS(null,'cx',mousePos.x-5);
+    currentHandle?.setAttributeNS(null,'cy',mousePos.y-5);
+    const startPoint=document.getElementById('start-point');
+    const curve=document.getElementById('curve');
+    const controlPoint1a=document.getElementById('control-point-1-a');
+    const controlPoint1b=document.getElementById('control-point-1-b');
+    const controlPoint2a=document.getElementById('control-point-2-a');
+    const controlPoint2b=document.getElementById('control-point-2-b');
+    const controlPoint3a=document.getElementById('control-point-3-a');
+    const controlPoint3b=document.getElementById('control-point-3-b');
+    const controlPoint4a=document.getElementById('control-point-4-a');
+    const controlPoint4b=document.getElementById('control-point-4-b');
+
+    const startPointX=Math.floor(startPoint.getAttributeNS(null,'cx')-5);
+    const startPointY=Math.floor(startPoint.getAttributeNS(null,'cy')-5);
+    const a1x=Math.floor(controlPoint1a.getAttributeNS(null,'x')-startPointX+5);
+    const a1y=Math.floor(controlPoint1a.getAttributeNS(null,'y')-startPointY+5);
+    const b1x=Math.floor(controlPoint1b.getAttributeNS(null,'x')-startPointX+5);
+    const b1y=Math.floor(controlPoint1b.getAttributeNS(null,'y')-startPointY+5);
+    const a2x=Math.floor(controlPoint2a.getAttributeNS(null,'x')-controlPoint1b.getAttributeNS(null,'x')+5);
+    const a2y=Math.floor(controlPoint2a.getAttributeNS(null,'y')-controlPoint1b.getAttributeNS(null,'y')+5);
+    const b2x=Math.floor(controlPoint2b.getAttributeNS(null,'x')-controlPoint1b.getAttributeNS(null,'x')+5);
+    const b2y=Math.floor(controlPoint2b.getAttributeNS(null,'y')-controlPoint1b.getAttributeNS(null,'y')+5);
+    const a3x=Math.floor(controlPoint3a.getAttributeNS(null,'x')-controlPoint2b.getAttributeNS(null,'x')-5);
+    const a3y=Math.floor(controlPoint3a.getAttributeNS(null,'y')-controlPoint2b.getAttributeNS(null,'y')-5);
+    const b3x=Math.floor(controlPoint3b.getAttributeNS(null,'x')-controlPoint2b.getAttributeNS(null,'x')-5);
+    const b3y=Math.floor(controlPoint3b.getAttributeNS(null,'y')-controlPoint2b.getAttributeNS(null,'y')-5);
+    const a4x=Math.floor(controlPoint4a.getAttributeNS(null,'x')-controlPoint3b.getAttributeNS(null,'x')+5);
+    const a4y=Math.floor(controlPoint4a.getAttributeNS(null,'y')-controlPoint3b.getAttributeNS(null,'y')+5);
+    const b4x=Math.floor(controlPoint4b.getAttributeNS(null,'x')-controlPoint3b.getAttributeNS(null,'x')+5);
+    const b4y=Math.floor(controlPoint4b.getAttributeNS(null,'y')-controlPoint3b.getAttributeNS(null,'y')+5);
+    document.getElementById('text').innerHTML=`M ${startPointX},${startPointY} s ${a1x},${a1y},${b1x},${b1y} s ${a2x},${a2y},${b2x},${b2y} s ${a3x},${a3y},${b3x},${b3y} s ${a4x},${a4y},${b4x},${b4y}`;
+    curve.setAttributeNS(null,'d',`M ${startPointX},${startPointY} s ${a1x},${a1y},${b1x},${b1y} s ${a2x},${a2y},${b2x},${b2y} s ${a3x},${a3y},${b3x},${b3y} s ${a4x},${a4y},${b4x},${b4y}`);
+}
+
+    </script>
+</body>
+</html>

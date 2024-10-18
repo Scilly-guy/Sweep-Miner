@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            background-color: black;
+            margin:0;
+            padding: 0;
+            overflow: hidden;
+            cursor:move;
+        }
+        .served{
+            cursor:pointer;
+        }
+        .clear-button{
+            background: none;
+            padding: 0;
+            border:0;
+            font-family: inherit; 
+            font-size: 100%; 
+            line-height: 1.15;
+            margin: 0;
+            cursor:pointer;
+        }
+        #settings{
+            position:absolute;
+            top:0.2rem;
+            right:1rem;
+            width:2.4rem;
+            height: 2.4rem;
+        }
+        .grey{
+            fill:#444
+        }
+        .red{
+            fill:#f22
+        }
+        .clear-button:hover{
+            opacity:50%;
+        }
+
+        .absolute{
+            position: absolute;
+        }
+        .top{
+            top:0.2rem;
+        }
+        .left{
+            left:1rem;
+        }
+        .right{
+            right:0.2rem;
+        }
+        #gui{
+            background-color: #999;
+        }
+        #settings-dialog{
+            position:relative;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <svg id="svg" width="100%" height="100%" viewBox="0 0 1000 1000">
+        <defs>
+            <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0396ff"/>
+                <stop offset="100%" stop-color="#abcdef"/>
+            </linearGradient>
+        </defs>
+        <rect id="skyBox" x="0" width="1000" height="50" fill="url(#sky)"/>
+    </svg>
+    <button class="clear-button" id="settings">
+        <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 50 50" width="50px" height="50px">    <path class="grey" d="M47.16,21.221l-5.91-0.966c-0.346-1.186-0.819-2.326-1.411-3.405l3.45-4.917c0.279-0.397,0.231-0.938-0.112-1.282 l-3.889-3.887c-0.347-0.346-0.893-0.391-1.291-0.104l-4.843,3.481c-1.089-0.602-2.239-1.08-3.432-1.427l-1.031-5.886 C28.607,2.35,28.192,2,27.706,2h-5.5c-0.49,0-0.908,0.355-0.987,0.839l-0.956,5.854c-1.2,0.345-2.352,0.818-3.437,1.412l-4.83-3.45 c-0.399-0.285-0.942-0.239-1.289,0.106L6.82,10.648c-0.343,0.343-0.391,0.883-0.112,1.28l3.399,4.863 c-0.605,1.095-1.087,2.254-1.438,3.46l-5.831,0.971c-0.482,0.08-0.836,0.498-0.836,0.986v5.5c0,0.485,0.348,0.9,0.825,0.985 l5.831,1.034c0.349,1.203,0.831,2.362,1.438,3.46l-3.441,4.813c-0.284,0.397-0.239,0.942,0.106,1.289l3.888,3.891 c0.343,0.343,0.884,0.391,1.281,0.112l4.87-3.411c1.093,0.601,2.248,1.078,3.445,1.424l0.976,5.861C21.3,47.647,21.717,48,22.206,48 h5.5c0.485,0,0.9-0.348,0.984-0.825l1.045-5.89c1.199-0.353,2.348-0.833,3.43-1.435l4.905,3.441 c0.398,0.281,0.938,0.232,1.282-0.111l3.888-3.891c0.346-0.347,0.391-0.894,0.104-1.292l-3.498-4.857 c0.593-1.08,1.064-2.222,1.407-3.408l5.918-1.039c0.479-0.084,0.827-0.5,0.827-0.985v-5.5C47.999,21.718,47.644,21.3,47.16,21.221z M25,32c-3.866,0-7-3.134-7-7c0-3.866,3.134-7,7-7s7,3.134,7,7C32,28.866,28.866,32,25,32z"/></svg>
+    </button>
+    <dialog id="settings-dialog">
+        <h1>Sweep Miner</h1>
+        <h2>Welcome</h2>
+        <p>As you may guess from the name this game is very similar to Mine Sweeper, only instead of searching for sea mines you are digging in a mine and trying to avoid mining some where that will cause a cave-in.</p>
+        <p>When you mine a tile you use your expert skill as a miner and mark the cave wall with how many of the adjacent tiles will cause a cave-in.</p>
+        <p>To start enter a value in the box below to act as a seed value for the game and click "Play!". Start digging from one of the seven surface tiles, there is no effective limit to how far you can dig but cave-ins become more likely the deeper you go.</p>
+        <input type="text" id="seed"/>
+        <button id="play">Play!</button>
+        <label for="ambience">Ambient music:</label><audio src="New_Beginning.mp3" id="ambience" preload="auto" controls></audio>
+        <button class="clear-button absolute top right" id="close-settings">
+            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 30 30" width="30px" height="30px">    <path class="red" d="M 7 4 C 6.744125 4 6.4879687 4.0974687 6.2929688 4.2929688 L 4.2929688 6.2929688 C 3.9019687 6.6839688 3.9019687 7.3170313 4.2929688 7.7070312 L 11.585938 15 L 4.2929688 22.292969 C 3.9019687 22.683969 3.9019687 23.317031 4.2929688 23.707031 L 6.2929688 25.707031 C 6.6839688 26.098031 7.3170313 26.098031 7.7070312 25.707031 L 15 18.414062 L 22.292969 25.707031 C 22.682969 26.098031 23.317031 26.098031 23.707031 25.707031 L 25.707031 23.707031 C 26.098031 23.316031 26.098031 22.682969 25.707031 22.292969 L 18.414062 15 L 25.707031 7.7070312 C 26.098031 7.3170312 26.098031 6.6829688 25.707031 6.2929688 L 23.707031 4.2929688 C 23.316031 3.9019687 22.682969 3.9019687 22.292969 4.2929688 L 15 11.585938 L 7.7070312 4.2929688 C 7.5115312 4.0974687 7.255875 4 7 4 z"/></svg>
+        </button>
+    </dialog>
+    <div id="gui" class="absolute top left">
+        <label for="depth-reached">Depth Reached:</label><span id="depth-reached">0</span>
+        <label for="caveins">Cave-ins Caused:</label><span id="caveins">0</span>
+    </div>
+    <script type="module">
+        import {io} from 'https://cdn.socket.io/4.7.4/socket.io.esm.min.js';
+        const socket=io('http://127.0.0.1:5550');
+        
+        const SVGREF='http://www.w3.org/2000/svg';
+        const audio=document.getElementById('ambience');
+        audio.loop=true;
+        
+        const windowWidth=window.innerWidth;
+        const svg=document.getElementById("svg");
+        const depthGuage=document.getElementById('depth-reached');
+        const caveinGuage=document.getElementById('caveins');
+        let caveins=0;
+        let deepest=0;
+        const viewBox = svg.getAttribute('viewBox').split(' ').map(Number);
+        viewBox[2]=windowWidth;
+        svg.setAttribute('viewBox', viewBox.join(' '));
+        var startX, startY, isDragging = false;
+
+        const yOffset=75;
+        const cellSize=50;
+        const xOffset=(window.innerWidth-7*cellSize)/2;
+        const windowCellsWide=Math.ceil(windowWidth/cellSize);
+        const skyBox=document.getElementById("skyBox");
+        const grass=[];
+        const ground=drawGround(svg);
+        ground.setAttributeNS(null,'width',windowWidth);
+        skyBox.setAttributeNS(null,'width',windowWidth);
+        let backGroundX=parseInt(ground.getAttributeNS(null,'x'));
+        function drawGround(svgReference){
+            const ground=document.createElementNS(SVGREF,'rect');
+            ground.setAttributeNS(null,'x',0);
+            ground.setAttributeNS(null,'y',yOffset-cellSize/2);
+            ground.setAttributeNS(null,'width',windowWidth);
+            ground.setAttributeNS(null,'height',cellSize);
+            ground.setAttributeNS(null,'fill','#4a3931');
+            svgReference.append(ground);
+
+            for(let i=-1;i<windowCellsWide+1;i++){
+                grass.push(drawGrass(i*cellSize,yOffset,cellSize,svg));
+            }
+            return ground;
+        }
+        function drawTile(x,y,size,svgreference,text='',id='',className='',colour='#33333333',vanishOnClick=true){
+            const tile = document.createElementNS(SVGREF, 'rect');
+            const textbox = document.createElementNS(SVGREF,'text');
+            tile.setAttributeNS(null, 'x', x);
+            tile.setAttributeNS(null,'y' ,y-size/2);
+            tile.setAttributeNS(null,'width',size);
+            tile.setAttributeNS(null,'height',size);
+            tile.setAttributeNS(null,'fill',colour);
+            tile.setAttributeNS(null,'stroke','black');
+            if(id!=''){
+                tile.setAttributeNS(null,'id',id);
+            }
+            if(className!=''){
+                tile.setAttributeNS(null,'class',className);
+            }
+            if(text!=''){
+                textbox.setAttributeNS(null, 'x', x+cellSize/2-3);
+                textbox.setAttributeNS(null,'y' ,y+4);
+                textbox.setAttributeNS(null,'width',size);
+                textbox.setAttributeNS(null,'height',size);
+                textbox.innerHTML=text;
+            }
+            if(vanishOnClick){
+                tile.addEventListener('click',e=>{
+                    e.target.setAttributeNS(null,'fill',"none");
+                    console.log("clicked on any tile");
+                });
+            }
+            svgreference.append(tile);
+            svgreference.append(textbox);
+            return tile;
+        }
+
+        function drawGrass(x,y,size,svgReference,id=''){
+            const image = document.createElementNS(SVGREF, 'image');
+            image.setAttributeNS(null, 'x', x-(size*0.15));
+            image.setAttributeNS(null,'y' ,y-(size*0.95));
+            image.setAttributeNS(null,'width',size*1.3);
+            image.setAttributeNS(null,'height',size*0.9);
+            image.setAttributeNS(null,'href','../grass.svg');
+            if(id!=''){
+                image.setAttributeNS(null,'class',id);
+            }
+            svgReference.append(image);
+            return image;
+        }
+
+        document.getElementById("play").addEventListener('click',e=>{
+            const seed=document.getElementById('seed').value.replace(/[^a-zA-Z0-9]/g, '');
+            socket.emit('start-game',seed);
+            document.getElementById('settings-dialog').close();
+        });
+
+        socket.on('game-start',(game)=>{
+            console.log(game);
+            for(let i=0;i<game.zoneSize;i++){
+                drawTile(i*cellSize+xOffset,yOffset,cellSize,svg,'',`tile_${i}_${0}`,'served','#4a3931').addEventListener('click',e=>{
+                    socket.emit('mine-this',{x:i,y:0});
+                    console.log("Cicked on a starting cell");
+                });
+                drawGrass(i*cellSize+xOffset,yOffset,cellSize,svg);
+            }
+        });
+
+        socket.on('mine-result',(result)=>{
+            console.log(result);
+            if(result.mine){
+                caveins++;
+                caveinGuage.innerText=caveins;
+            }
+            else{
+                if(result.y>deepest){
+                    deepest=result.y;
+                    depthGuage.innerText=deepest;
+                }
+                drawTile(result.x*cellSize+xOffset,result.y*cellSize+yOffset,cellSize,svg,`${result.count}`,`mined-${result.x}-${result.y}`,'mined','#9d755c',false);
+
+                //draw the tiles that can be mined now
+                //calc the 4 tiles adjacent to this tile
+                const adjacent=[
+                    {x:result.x,y:result.y-1},//above
+                    {x:result.x,y:result.y+1},//below
+                    {x:result.x-1,y:result.y},//left
+                    {x:result.x+1,y:result.y}//right
+                ];
+                const need=[true,true,true,true];
+                const allTiles=document.querySelectorAll('.served');
+                const allCoords=new Array(allTiles.length);
+                for(let i=0;i<allTiles.length;i++){
+                    allCoords[i]=coordsFromId(allTiles[i].id);
+                    let isAdjacent=false;
+                    let j=0;
+                    do{
+                        if(adjacent[j].x==allCoords[i].x && adjacent[j].y==allCoords[i].y){
+                            need[j]=false;
+                            j=4;
+                        }
+                        j++;
+                    }while(j<4);
+                }
+
+                if (need[0]){
+                    console.log(`result.y: ${result.y}`);
+                    result.y-1>=0?drawTile(
+                        result.x*cellSize+xOffset,
+                        (result.y-1)*cellSize+yOffset,
+                        cellSize,
+                        svg,
+                        '',
+                        `tile_${result.x}_${result.y-1}`,
+                        'served',
+                        result.y-1>0?'#d7d0cd':'#4a3931'
+                        ).addEventListener('click',e=>{
+                        socket.emit('mine-this',{x:result.x,y:result.y-1});
+                        console.log("Clicked on a tile created because of need[0]");
+                    }):null;
+                }
+
+                if(need[1]){
+                    drawTile((result.x)*cellSize+xOffset,(result.y+1)*cellSize+yOffset,cellSize,svg,'',`tile_${result.x}_${result.y+1}`,'served','#d7d0cd').addEventListener('click',e=>{
+                        socket.emit('mine-this',{x:result.x,y:result.y+1});
+                        console.log("Clicked on a tile created because of need[1]");
+                    });
+                }
+
+                if(need[2]){
+                    drawTile((result.x-1)*cellSize+xOffset,(result.y)*cellSize+yOffset,cellSize,svg,'',`tile_${result.x-1}_${result.y}`,'served',result.y>0?'#d7d0cd':'#4a3931').addEventListener('click',e=>{
+                        socket.emit('mine-this',{x:result.x-1,y:result.y});
+                        console.log("Clicked on a tile created because of need[2]");
+                    });
+                }
+
+                if(need[3]){
+                    drawTile((result.x+1)*cellSize+xOffset,(result.y)*cellSize+yOffset,cellSize,svg,'',`tile_${result.x+1}_${result.y}`,'served',result.y>0?'#d7d0cd':'#4a3931').addEventListener('click',e=>{
+                        socket.emit('mine-this',{x:result.x+1,y:result.y});
+                        console.log("Clicked on a tile created because of need[3]");
+                    });
+                }
+            }
+        });
+
+
+        const gameMines=[];
+        const gameWidth=4;
+        const gameHeight=5;
+        const gameBoard=Array(gameWidth*gameHeight);
+        gameBoard.fill(0);
+
+        for(let i=0;i<gameWidth;i++){
+            for(let j=0;j<gameHeight;j++){
+                gameMines.push(Math.random()<0.1?1:0);
+            }
+        }
+        console.log(gameMines.length);
+        
+        for(let i=0;i<gameWidth;i++){
+            for(let j=0;j<gameHeight;j++){
+                
+                if(isNaN(gameBoard[i*gameHeight+j])){
+                    console.log(i,j);
+                    console.log(gameBoard[i*gameHeight+j]);
+                }
+                //if it is not the first column
+                if(0<i){
+                    //if the cell to the left is a mine
+                    if(gameMines[(i-1)*gameHeight+j]){
+                        gameBoard[i*gameHeight+j]++;
+                    }
+                    //if it is not the first cell
+                    if(0<j){
+                        //if the cell up and left is a mine
+                        if(gameMines[(i-1)*gameHeight+j-1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }
+                    }//if it is not the bottom left cell
+                    if(j<gameHeight-1){
+                        //if the cell left and down is a mine
+                        if(gameMines[(i-1)*gameHeight+j+1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }                        
+                    }
+                }
+                if(isNaN(gameBoard[i*gameHeight+j])){
+                    console.log(i,j);
+                    console.log(gameBoard[i*gameHeight+j]);
+                }
+                //if it is not the right hand column
+                if(i<gameWidth-1){
+                    //if the cell to the right is a mine
+                    if(gameMines[(i+1)*gameHeight+j])
+                    gameBoard[i*gameHeight+j]++;
+                    //if it is not the right hand most cell in the first row
+                    if(0<j){
+                        //if the cell up and right is a mine
+                        if(gameMines[(i+1)*gameHeight+j-1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }
+                    }//if it is not the bottom right cell
+                    if(j<gameHeight-1){
+                        //if the cell down and right is a mine
+                        if(gameMines[(i+1)*gameHeight+j+1]){
+                            gameBoard[i*gameHeight+j]++;
+                        }
+                    }
+                }
+                //if it is not the first row
+                if(0<j){
+                    //if the cell above is a mine
+                    if(gameMines[i*gameHeight+j-1])
+                    gameBoard[i*gameHeight+j]++;
+                }
+                //if it is not the bottom row
+                if(j<gameHeight-1){
+                    //if the cell below is a mine
+                    if(gameMines[i*gameHeight+j+1])
+                    gameBoard[i*gameHeight+j]++;
+                }
+
+                
+                if(isNaN(gameBoard[i*gameHeight+j])){
+                    console.log(i,j);
+                    console.log(gameBoard[i*gameHeight+j]);
+                }
+            }
+        }
+
+        function coordsFromId(id){
+            const coords=id.split('_');
+            return {x:parseInt(coords[1]),y:parseInt(coords[2])};
+        }
+
+        svg.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+
+        svg.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                let deltaX = e.clientX - startX;
+                let deltaY = e.clientY - startY;
+                startX = e.clientX;
+                startY = e.clientY;
+
+                viewBox[0] -= deltaX;
+                viewBox[1] -= deltaY;
+                backGroundX-=deltaX;
+                ground.setAttributeNS(null,'x',backGroundX);   
+                skyBox.setAttributeNS(null,'x',backGroundX);    
+                
+                let movedLeft= deltaX>0?true:false;
+                
+                for(let i=0;i<grass.length;i++){
+                    const oldX=parseInt(grass[i].getAttributeNS(null,'x'));  
+                    if(movedLeft){                          
+                        if(oldX>viewBox[0]+windowWidth){
+                            grass[i].setAttributeNS(null,'x',oldX-cellSize*(windowCellsWide+2));
+                        }                        
+                    }
+                    else{                     
+                        if(oldX+cellSize<viewBox[0]){
+                            grass[i].setAttributeNS(null,'x',oldX+cellSize*(windowCellsWide+2));
+                        }               
+                    }
+                }
+                if(viewBox[1]<0){viewBox[1]=0;}
+                svg.setAttribute('viewBox', viewBox.join(' '));
+            }
+        });
+
+        svg.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+
+        svg.addEventListener('mouseleave', function() {
+            isDragging = false;
+        });
+
+        document.getElementById("settings-dialog").showModal();
+        document.getElementById('settings').addEventListener('click',e=>{
+            document.getElementById('settings-dialog').showModal();
+        });
+
+        document.getElementById('close-settings').addEventListener('click',e=>{
+            document.getElementById('settings-dialog').close();
+        });
+
+        /*//const AudioContext=window.AudioContext || window.webkitAudioContext;
+        const audioContext=new AudioContext();
+        const track=document.createElement('audio');
+        let ambientMusic;
+        track.setAttribute('src','New_Beginning.mp3');
+        track.addEventListener('load',e=>{
+            alert("track loaded");
+            ambientMusic=audioContext.createMediaElementSource(e.target);
+            ambientMusic.connect(audioContext.destination);
+            document.getElementById('play-pause-ambience').addEventListener('click',e=>{
+                alert("Listener Added");
+                if(audioContext.state==='suspended'){
+                    audioContext.resume();
+                }
+
+                if(e.target.dataset.playing==='false'){
+                    track.play();
+                    e.target.dataset.playing="true";
+                }
+                else if(e.target.dataset.playing==="true"){
+                    track.pause();
+                    e.target.dataset.playing="false";
+                }
+            });
+        });
+        document.getElementById('tracks').append(track);*/
+    </script>
+</body>
+</html>
